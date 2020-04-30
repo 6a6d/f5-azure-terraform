@@ -39,7 +39,7 @@ variable "SP" {
 }
 
 variable "prefix" {
-  default = "scs"
+  default = "poc"
 }
 
 variable "uname" {
@@ -47,15 +47,15 @@ variable "uname" {
 }
 
 variable "upassword" {
-  default = "Default12345"
+  default = "superSecret!"
 }
 
 variable "location" {
-  default = "eastus"
+  default = "centralus"
 }
 
 variable "region" {
-  default = "East US"
+  default = "CentralUS"
 }
 
 # NETWORK
@@ -106,8 +106,6 @@ variable "f5vm03ext" {
 variable "f5vm03ext_sec" {
   default = "10.90.2.13"
 }
-
-
 
 variable "backend01ext" {
   default = "10.90.2.101"
@@ -160,13 +158,18 @@ variable "timezone" {
 }
 
 ## Please check and update the latest DO URL from https://github.com/F5Networks/f5-declarative-onboarding/releases
-variable "DO_onboard_URL" {
-  default = "https://github.com/garyluf5/f5tools/raw/master/f5-declarative-onboarding-1.3.0-4.noarch.rpm"
+variable "DO_URL" {
+  default = "https://github.com/F5Networks/f5-declarative-onboarding/releases/download/v1.12.0/f5-declarative-onboarding-1.12.0-1.noarch.rpm"
 }
 
-## Please check and update the latest AS3 URL from https://github.com/F5Networks/f5-appsvcs-extension/releases/latest 
+## Please check and update the latest AS3 URL from https://github.com/F5Networks/f5-appsvcs-extension/releases/latest
 variable "AS3_URL" {
-  default = "https://github.com/garyluf5/f5tools/raw/master/f5-appsvcs-3.9.0-3.noarch.rpm"
+  default = "https://github.com/F5Networks/f5-appsvcs-extension/releases/download/v3.19.0/f5-appsvcs-3.19.0-4.noarch.rpm"
+}
+
+## Please check and update the latest TS URL from https://github.com/F5Networks/f5-telemetry-streaming/releases
+variable "TS_URL" {
+  default = "https://github.com/F5Networks/f5-telemetry-streaming/releases/download/v1.11.0/f5-telemetry-1.11.0-1.noarch.rpm"
 }
 
 variable "libs_dir" {
@@ -201,4 +204,3 @@ variable "costcenter" {
 variable "application" {
   default = "f5app"
 }
-
