@@ -793,3 +793,6 @@ output "f5vm02_ext_private_ip" {
   value = azurerm_network_interface.vm02-ext-nic.private_ip_address
 }
 
+output "jumpbox_ip" {
+    value = azurerm_public_ip.jb_public_ip[*].ip_address
+}
