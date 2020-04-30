@@ -55,9 +55,13 @@ Ex.
     ```
 - In order to pass traffic from your clients to the servers, after launching the template, you must create virtual server(s) on the BIG-IP VE.  See [Creating a virtual server](#creating-virtual-servers-on-the-big-ip-ve).
 - See the **[Configuration Example](#configuration-example)** section for a configuration diagram and description for this solution.
--Run terraform plan with generated keys
+- Run terraform plan with generated keys to validate configuration
     ```
-        terraform plan -var privatekeyfile=./tftest -var publickeyfile=./tftest.pub
+        terraform plan -var privatekeyfile=./.tftest -var publickeyfile=./.tftest.pub
+    ```
+- Once configuration is validated, run terraform apply
+    ```
+        terraform apply -var privatekeyfile=./.tftest -var publickeyfile=./.tftest.pub
     ```
 
 ### Template parameters

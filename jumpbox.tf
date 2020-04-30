@@ -1,12 +1,10 @@
 # Create virtual machine
 resource "azurerm_virtual_machine" "jumpbox" {
-    count                 = length(var.azs)
-    name                  = format("%s-jumpbox-%s-%s",var.prefix,count.index,random_id.randomId.hex)
+    name                  = format("%s-jumpbox-%s-%s",var.prefix,random_id.randomId.hex)
     location              = azurerm_resource_group.main.location
     resource_group_name   = azurerm_resource_group.main.name
-    network_interface_ids = [azurerm_network_interface.jb_nic[count.index].id]
+    network_interface_ids = [azurerm_network_interface.jb_nic.id]
     vm_size               = "Standard_DS1_v2"
-    zones                 = [element(var.azs,count.index)]
 
     # Uncomment this line to delete the OS disk automatically when deleting the VM
     # if this is set to false there are behaviors that will require manual intervention
@@ -16,7 +14,7 @@ resource "azurerm_virtual_machine" "jumpbox" {
     # Uncomment this line to delete the data disks automatically when deleting the VM
     delete_data_disks_on_termination = true
     storage_os_disk {
-        name              = format("%s-jumpbox-%s-%s",var.prefix,count.index,random_id.randomId.hex)
+        name              = format("%s-jumpbox-%s-%s",var.prefix,random_id.randomId.hex)
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
@@ -30,7 +28,7 @@ resource "azurerm_virtual_machine" "jumpbox" {
     }
 
     os_profile {
-        computer_name  = format("%s-jumpbox-%s-%s",var.prefix,count.index,random_id.randomId.hex)
+        computer_name  = format("%s-jumpbox-%s-%s",var.prefix,random_id.randomId.hex)
         admin_username = "azureuser"
     }
 
@@ -42,11 +40,6 @@ resource "azurerm_virtual_machine" "jumpbox" {
         }
     }
 
-    boot_diagnostics {
-        enabled = "true"
-        storage_uri = azurerm_storage_account.mystorageaccount.primary_blob_endpoint
-    }
-
     tags = {
         environment = var.environment
     }
@@ -54,17 +47,16 @@ resource "azurerm_virtual_machine" "jumpbox" {
 
 # Create network interface
 resource "azurerm_network_interface" "jb_nic" {
-    count                     = length(var.azs)
-    name                      = format("%s-jb-nic-%s-%s",var.prefix,count.index,random_id.randomId.hex)
+    name                      = format("%s-jb-nic-%s-%s",var.prefix,random_id.randomId.hex)
     location                  = azurerm_resource_group.main.location
     resource_group_name       = azurerm_resource_group.main.name
-    network_security_group_id = azurerm_network_security_group.jb_sg.id
+    #network_security_group_id = azurerm_network_security_group.jb_sg.id
 
     ip_configuration {
-        name                          = format("%s-jb-nic-%s-%s",var.prefix,count.index,random_id.randomId.hex)
-        subnet_id                     = azurerm_subnet.public[count.index].id
+        name                          = format("%s-jb-nic-%s-%s",var.prefix,random_id.randomId.hex)
+        subnet_id                     = azurerm_subnet.Mgmt.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.jb_public_ip[count.index].id
+        public_ip_address_id          = azurerm_public_ip.jb_public_ip.id
     }
 
     tags = {
@@ -98,13 +90,11 @@ resource "azurerm_network_security_group" "jb_sg" {
 
 # Create public IPs
 resource "azurerm_public_ip" "jb_public_ip" {
-    count               = length(var.azs)
-    name                = format("%s-jb-%s-%s",var.prefix,count.index,random_id.randomId.hex)
+    name                = format("%s-jb-%s-%s",var.prefix,random_id.randomId.hex)
     location            = azurerm_resource_group.main.location
     resource_group_name = azurerm_resource_group.main.name
     allocation_method   = "Static" # Static is required due to the use of the Standard sku
     sku                 = "Standard" # the Standard sku is required due to the use of availability zones
-    zones               = [element(var.azs,count.index)]
 
     tags = {
         environment = var.environment

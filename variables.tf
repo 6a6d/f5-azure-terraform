@@ -204,3 +204,10 @@ variable "costcenter" {
 variable "application" {
   default = "f5app"
 }
+
+variable "publickeyfile" {
+    description = "public key for server builds"
+}
+variable "privatekeyfile" {
+    description = "private key for server access"
+}
