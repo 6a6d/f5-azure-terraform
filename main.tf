@@ -210,12 +210,12 @@ resource "azurerm_network_security_group" "main" {
   }
 }
 
- # Create the first network interface card for Management
+# Create the first network interface card for Management
 resource "azurerm_network_interface" "vm03-mgmt-nic" {
   name                      = "${var.prefix}-vm03-mgmt-nic"
   location                  = azurerm_resource_group.main.location
   resource_group_name       = azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.main.id
+  #network_security_group_id = azurerm_network_security_group.main.id
 
   ip_configuration {
     name                          = "primary"
@@ -235,12 +235,12 @@ resource "azurerm_network_interface" "vm03-mgmt-nic" {
   }
 }
 
-# Create the first network interface card for Management 
+# Create the first network interface card for Management
 resource "azurerm_network_interface" "vm01-mgmt-nic" {
   name                      = "${var.prefix}-vm01-mgmt-nic"
   location                  = azurerm_resource_group.main.location
   resource_group_name       = azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.main.id
+  #network_security_group_id = azurerm_network_security_group.main.id
 
   ip_configuration {
     name                          = "primary"
@@ -264,7 +264,7 @@ resource "azurerm_network_interface" "vm02-mgmt-nic" {
   name                      = "${var.prefix}-vm02-mgmt-nic"
   location                  = azurerm_resource_group.main.location
   resource_group_name       = azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.main.id
+  #network_security_group_id = azurerm_network_security_group.main.id
 
   ip_configuration {
     name                          = "primary"
@@ -289,7 +289,7 @@ resource "azurerm_network_interface" "vm01-ext-nic" {
   name                      = "${var.prefix}-vm01-ext-nic"
   location                  = azurerm_resource_group.main.location
   resource_group_name       = azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.main.id
+  #network_security_group_id = azurerm_network_security_group.main.id
   depends_on                = [azurerm_lb_backend_address_pool.backend_pool]
 
   ip_configuration {
@@ -321,7 +321,7 @@ resource "azurerm_network_interface" "vm02-ext-nic" {
   name                      = "${var.prefix}-vm02-ext-nic"
   location                  = azurerm_resource_group.main.location
   resource_group_name       = azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.main.id
+  #network_security_group_id = azurerm_network_security_group.main.id
   depends_on                = [azurerm_lb_backend_address_pool.backend_pool]
 
   ip_configuration {
@@ -353,7 +353,7 @@ resource "azurerm_network_interface" "backend01-ext-nic" {
   name                      = "${var.prefix}-backend01-ext-nic"
   location                  = azurerm_resource_group.main.location
   resource_group_name       = azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.main.id
+  #network_security_group_id = azurerm_network_security_group.main.id
 
   ip_configuration {
     name                          = "primary"
@@ -401,8 +401,9 @@ data "template_file" "vm_onboard" {
   vars = {
     uname          = var.uname
     upassword      = var.upassword
-    DO_onboard_URL = var.DO_onboard_URL
+    DO_URL         = var.DO_URL
     AS3_URL        = var.AS3_URL
+    TS_URL         = var.TS_URL
     libs_dir       = var.libs_dir
     onboard_log    = var.onboard_log
   }
@@ -575,56 +576,6 @@ resource "azurerm_virtual_machine" "f5vm02" {
   }
 }
 
-# backend VM
-resource "azurerm_virtual_machine" "backendvm" {
-  name                = "backendvm"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  network_interface_ids = [azurerm_network_interface.backend01-ext-nic.id]
-  vm_size               = "Standard_DS1_v2"
-
-  storage_os_disk {
-    name              = "backendOsDisk"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Premium_LRS"
-  }
-
-  storage_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "16.04.0-LTS"
-    version   = "latest"
-  }
-
-  os_profile {
-    computer_name  = "backend01"
-    admin_username = "azureuser"
-    admin_password = var.upassword
-    custom_data    = <<-EOF
-              #!/bin/bash
-              apt-get update -y
-              apt-get install -y docker.io
-              docker run -d -p 80:80 --net=host --restart unless-stopped -e F5DEMO_APP=website -e F5DEMO_NODENAME='F5 Azure' -e F5DEMO_COLOR=ffd734 -e F5DEMO_NODENAME_SSL='F5 Azure (SSL)' -e F5DEMO_COLOR_SSL=a0bf37 chen23/f5-demo-app:ssl
-EOF
-
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-
-  tags = {
-    Name        = "${var.environment}-backend01"
-    environment = var.environment
-    owner       = var.owner
-    group       = var.group
-    costcenter  = var.costcenter
-    application = var.application
-  }
-}
-
 # Run Startup Script
 resource "azurerm_virtual_machine_extension" "f5vm01-run-startup-cmd" {
   name = "${var.environment}-f5vm01-run-startup-cmd"
@@ -632,9 +583,10 @@ resource "azurerm_virtual_machine_extension" "f5vm01-run-startup-cmd" {
     azurerm_virtual_machine.f5vm01,
     azurerm_virtual_machine.backendvm,
   ]
-  location             = var.region
-  resource_group_name  = azurerm_resource_group.main.name
-  virtual_machine_name = azurerm_virtual_machine.f5vm01.name
+  #location             = var.region
+  #resource_group_name  = azurerm_resource_group.main.name
+  #virtual_machine_name = azurerm_virtual_machine.f5vm01.name
+  virtual_machine_id   = azurerm_virtual_machine.f5vm01.id
   publisher            = "Microsoft.OSTCExtensions"
   type                 = "CustomScriptForLinux"
   type_handler_version = "1.2"
@@ -647,8 +599,7 @@ resource "azurerm_virtual_machine_extension" "f5vm01-run-startup-cmd" {
     {
         "commandToExecute": "bash /var/lib/waagent/CustomData"
     }
-  
-SETTINGS
+  SETTINGS
 
 
   tags = {
@@ -667,9 +618,10 @@ resource "azurerm_virtual_machine_extension" "f5vm02-run-startup-cmd" {
     azurerm_virtual_machine.f5vm02,
     azurerm_virtual_machine.backendvm,
   ]
-  location             = var.region
-  resource_group_name  = azurerm_resource_group.main.name
-  virtual_machine_name = azurerm_virtual_machine.f5vm02.name
+  #location             = var.region
+  #resource_group_name  = azurerm_resource_group.main.name
+  #virtual_machine_name = azurerm_virtual_machine.f5vm02.name
+  virtual_machine_id   = azurerm_virtual_machine.f5vm02.id
   publisher            = "Microsoft.OSTCExtensions"
   type                 = "CustomScriptForLinux"
   type_handler_version = "1.2"
@@ -682,8 +634,7 @@ resource "azurerm_virtual_machine_extension" "f5vm02-run-startup-cmd" {
     {
         "commandToExecute": "bash /var/lib/waagent/CustomData"
     }
-  
-SETTINGS
+  SETTINGS
 
 
   tags = {
@@ -731,11 +682,10 @@ EOF
   }
 
   # Running AS3 REST API
-  # Running AS3 REST API
   provisioner "local-exec" {
     command = <<-EOF
       #!/bin/bash
-#      sleep 15
+      #sleep 15
       curl -k -X ${var.rest_as3_method} https://${data.azurerm_public_ip.vm01mgmtpip.ip_address}${var.rest_as3_uri} \
               -u ${var.uname}:${var.upassword} \
               -d @${var.rest_vm_as3_file}
@@ -748,11 +698,10 @@ resource "null_resource" "f5vm02-run-REST" {
   depends_on = [azurerm_virtual_machine_extension.f5vm02-run-startup-cmd]
 
   # Running DO REST API
-  # Running DO REST API
   provisioner "local-exec" {
     command = <<-EOF
       #!/bin/bash
-#      sleep 5
+      #sleep 5
       curl -k -X ${var.rest_do_method} https://${data.azurerm_public_ip.vm02mgmtpip.ip_address}${var.rest_do_uri} \
               -u ${var.uname}:${var.upassword} \
               -d @${var.rest_vm02_do_file}
@@ -761,11 +710,10 @@ EOF
   }
 
   # Running AS3 REST API
-  # Running AS3 REST API
   provisioner "local-exec" {
     command = <<-EOF
       #!/bin/bash
-#      sleep 10
+      #sleep 10
       curl -k -X ${var.rest_as3_method} https://${data.azurerm_public_ip.vm02mgmtpip.ip_address}${var.rest_as3_uri} \
               -u ${var.uname}:${var.upassword} \
               -d @${var.rest_vm_as3_file}

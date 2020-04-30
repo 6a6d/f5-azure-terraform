@@ -1,10 +1,9 @@
-
 # Create the second network interface card for External
 resource "azurerm_network_interface" "vm03-ext-nic" {
   name                      = "${var.prefix}-vm03-ext-nic"
   location                  = azurerm_resource_group.main.location
   resource_group_name       = azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.main.id
+  #network_security_group_id = azurerm_network_security_group.main.id
   depends_on                = [azurerm_lb_backend_address_pool.backend_pool]
 
   ip_configuration {
@@ -79,7 +78,8 @@ resource "azurerm_virtual_machine" "f5vm03" {
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
-os_profile {
+
+  os_profile {
     computer_name  = "${var.prefix}vm03"
     admin_username = var.uname
     admin_password = var.upassword
@@ -113,9 +113,10 @@ resource "azurerm_virtual_machine_extension" "f5vm03-run-startup-cmd" {
     azurerm_virtual_machine.f5vm03,
     azurerm_virtual_machine.backendvm,
   ]
-  location             = var.region
-  resource_group_name  = azurerm_resource_group.main.name
-  virtual_machine_name = azurerm_virtual_machine.f5vm03.name
+  #location             = var.region
+  #resource_group_name  = azurerm_resource_group.main.name
+  #virtual_machine_name = azurerm_virtual_machine.f5vm03.name
+  virtual_machine_id   = azurerm_virtual_machine.f5vm03.id
   publisher            = "Microsoft.OSTCExtensions"
   type                 = "CustomScriptForLinux"
   type_handler_version = "1.2"
@@ -128,15 +129,15 @@ resource "azurerm_virtual_machine_extension" "f5vm03-run-startup-cmd" {
     {
         "commandToExecute": "bash /var/lib/waagent/CustomData"
     }
-  
-SETTINGS
-tags = {
-    Name        = "${var.environment}-f5vm03-startup-cmd"
-    environment = var.environment
-    owner       = var.owner
-    group       = var.group
-    costcenter  = var.costcenter
-    application = var.application
-  }
+  SETTINGS
+
+  tags = {
+      Name        = "${var.environment}-f5vm03-startup-cmd"
+      environment = var.environment
+      owner       = var.owner
+      group       = var.group
+      costcenter  = var.costcenter
+      application = var.application
+    }
 }
 
