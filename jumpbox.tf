@@ -1,6 +1,6 @@
 # Create virtual machine
 resource "azurerm_virtual_machine" "jumpbox" {
-    name                  = format("%s-jumpbox-%s-%s",var.prefix,random_id.randomId.hex)
+    name                  = format("%s-jumpbox-%s",var.prefix,random_id.randomId.hex)
     location              = azurerm_resource_group.main.location
     resource_group_name   = azurerm_resource_group.main.name
     network_interface_ids = [azurerm_network_interface.jb_nic.id]
@@ -14,7 +14,7 @@ resource "azurerm_virtual_machine" "jumpbox" {
     # Uncomment this line to delete the data disks automatically when deleting the VM
     delete_data_disks_on_termination = true
     storage_os_disk {
-        name              = format("%s-jumpbox-%s-%s",var.prefix,random_id.randomId.hex)
+        name              = format("%s-jumpbox-%s",var.prefix,random_id.randomId.hex)
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
@@ -28,7 +28,7 @@ resource "azurerm_virtual_machine" "jumpbox" {
     }
 
     os_profile {
-        computer_name  = format("%s-jumpbox-%s-%s",var.prefix,random_id.randomId.hex)
+        computer_name  = format("%s-jumpbox-%s",var.prefix,random_id.randomId.hex)
         admin_username = "azureuser"
     }
 
@@ -47,13 +47,13 @@ resource "azurerm_virtual_machine" "jumpbox" {
 
 # Create network interface
 resource "azurerm_network_interface" "jb_nic" {
-    name                      = format("%s-jb-nic-%s-%s",var.prefix,random_id.randomId.hex)
+    name                      = format("%s-jb-nic-%s",var.prefix,random_id.randomId.hex)
     location                  = azurerm_resource_group.main.location
     resource_group_name       = azurerm_resource_group.main.name
     #network_security_group_id = azurerm_network_security_group.jb_sg.id
 
     ip_configuration {
-        name                          = format("%s-jb-nic-%s-%s",var.prefix,random_id.randomId.hex)
+        name                          = format("%s-jb-nic-%s",var.prefix,random_id.randomId.hex)
         subnet_id                     = azurerm_subnet.Mgmt.id
         private_ip_address_allocation = "Dynamic"
         public_ip_address_id          = azurerm_public_ip.jb_public_ip.id
@@ -90,7 +90,7 @@ resource "azurerm_network_security_group" "jb_sg" {
 
 # Create public IPs
 resource "azurerm_public_ip" "jb_public_ip" {
-    name                = format("%s-jb-%s-%s",var.prefix,random_id.randomId.hex)
+    name                = format("%s-jb-%s",var.prefix,random_id.randomId.hex)
     location            = azurerm_resource_group.main.location
     resource_group_name = azurerm_resource_group.main.name
     allocation_method   = "Static" # Static is required due to the use of the Standard sku
