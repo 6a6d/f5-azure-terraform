@@ -1,3 +1,7 @@
+variable "azs" {
+    default = ["1","3"]
+}
+
 # REST API Setting
 variable "rest_do_uri" {
   default = "/mgmt/shared/declarative-onboarding"
@@ -109,6 +113,10 @@ variable "f5vm03ext_sec" {
 
 variable "backend01ext" {
   default = "10.90.2.101"
+}
+
+variable "jbvm01mgmt" {
+  default = "10.90.1.6"
 }
 
 # BIGIP Image

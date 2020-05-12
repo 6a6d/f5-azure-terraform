@@ -34,3 +34,5 @@ override.tf.json
 terraform.rc
 
 .tftest*
+terraform.tfstate
+terraform.tfstate.backup

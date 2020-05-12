@@ -3,8 +3,8 @@ resource "azurerm_virtual_machine" "jumpbox" {
     name                  = format("%s-jumpbox-%s",var.prefix,random_id.randomId.hex)
     location              = azurerm_resource_group.main.location
     resource_group_name   = azurerm_resource_group.main.name
-    network_interface_ids = [azurerm_network_interface.jb_nic.id]
-    vm_size               = "Standard_DS1_v2"
+    network_interface_ids = [azurerm_network_interface.docker_nic.id]
+    vm_size               = "Standard_DC8_v2"
 
     # Uncomment this line to delete the OS disk automatically when deleting the VM
     # if this is set to false there are behaviors that will require manual intervention
@@ -47,18 +47,18 @@ resource "azurerm_virtual_machine" "jumpbox" {
 
 
 # Create network interface
-resource "azurerm_network_interface" "jb_nic" {
-    name                      = format("%s-jb-nic-%s",var.prefix,random_id.randomId.hex)
+resource "azurerm_network_interface" "docker_nic" {
+    name                      = format("%s-docker-nic-%s",var.prefix,random_id.randomId.hex)
     location                  = azurerm_resource_group.main.location
     resource_group_name       = azurerm_resource_group.main.name
-    #network_security_group_id = azurerm_network_security_group.jb_sg.id
+    #network_security_group_id = azurerm_network_security_group.docker_sg.id
 
     ip_configuration {
-        name                          = format("%s-jb-nic-%s",var.prefix,random_id.randomId.hex)
+        name                          = format("%s-docker-nic-%s",var.prefix,random_id.randomId.hex)
         subnet_id                     = azurerm_subnet.mgmt.id
         private_ip_address_allocation = "Static"
-        private_ip_address            = var.jbvm01mgmt
-        public_ip_address_id          = azurerm_public_ip.jb_public_ip.id
+        private_ip_address            = var.docker01mgmt
+        public_ip_address_id          = azurerm_public_ip.mgmt.id
     }
 
     tags = {
@@ -68,8 +68,8 @@ resource "azurerm_network_interface" "jb_nic" {
 
 
 # Create Network Security Group and rule
-resource "azurerm_network_security_group" "jb_sg" {
-    name                = format("%s-jb_sg-%s",var.prefix,random_id.randomId.hex)
+resource "azurerm_network_security_group" "docker_sg" {
+    name                = format("%s-docker_sg-%s",var.prefix,random_id.randomId.hex)
     location            = azurerm_resource_group.main.location
     resource_group_name = azurerm_resource_group.main.name
 
@@ -92,8 +92,8 @@ resource "azurerm_network_security_group" "jb_sg" {
 
 
 # Create public IPs
-resource "azurerm_public_ip" "jb_public_ip" {
-    name                = format("%s-jb-%s",var.prefix,random_id.randomId.hex)
+resource "azurerm_public_ip" "docker_public_ip" {
+    name                = format("%s-docker-%s",var.prefix,random_id.randomId.hex)
     location            = azurerm_resource_group.main.location
     resource_group_name = azurerm_resource_group.main.name
     allocation_method   = "Static" # Static is required due to the use of the Standard sku
