@@ -1,6 +1,6 @@
 # Create virtual machine
-resource "azurerm_virtual_machine" "jumpbox" {
-    name                  = format("%s-jumpbox-%s",var.prefix,random_id.randomId.hex)
+resource "azurerm_virtual_machine" "docker" {
+    name                  = format("%s-docker-%s",var.prefix,random_id.randomId.hex)
     location              = azurerm_resource_group.main.location
     resource_group_name   = azurerm_resource_group.main.name
     network_interface_ids = [azurerm_network_interface.docker_nic.id]
@@ -14,7 +14,7 @@ resource "azurerm_virtual_machine" "jumpbox" {
     # Uncomment this line to delete the data disks automatically when deleting the VM
     delete_data_disks_on_termination = true
     storage_os_disk {
-        name              = format("%s-jumpbox-%s",var.prefix,random_id.randomId.hex)
+        name              = format("%s-docker-%s",var.prefix,random_id.randomId.hex)
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
@@ -28,7 +28,7 @@ resource "azurerm_virtual_machine" "jumpbox" {
     }
 
     os_profile {
-        computer_name  = format("%s-jumpbox-%s",var.prefix,random_id.randomId.hex)
+        computer_name  = format("%s-docker-%s",var.prefix,random_id.randomId.hex)
         admin_username = "azureuser"
     }
 
